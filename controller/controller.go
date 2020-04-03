@@ -49,6 +49,7 @@ func (c controller) NewRouter() *mux.Router {
 
 func NewController(storage db.Storage, logger logger.Logger) Controller {
 	c := controller{storage, logger}
+	c.UpdateMfcs()
 	scheduler.Every(1).Minutes().Run(c.UpdateMfcs)
 
 	return &c

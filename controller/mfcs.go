@@ -61,11 +61,17 @@ func (c controller) UpdateMfcs() {
 
 	rows := make([]db.DBRow, 0)
 	for _, mfc := range mfcs {
-		rows = append(rows, &mfc)
+		newMfc := db.Mfc{
+			Id:                    mfc.Id,
+			CompletedTicketsCount: mfc.CompletedTicketsCount,
+			PendingTicketsCount:   mfc.PendingTicketsCount,
+		}
+		rows = append(rows, &newMfc)
 	}
 
 	err = c.mfcStorage.UpdateAll(rows)
 	if err != nil {
 		c.logger.Errorf("Failed to update statistics in database: %v\n", err)
+		return
 	}
 }

@@ -146,7 +146,7 @@ func (s *MfcStorage) UpdateAll(mfcs []DBRow) error {
 	}
 
 	for _, row := range mfcs {
-		mfc := (row).(Mfc)
+		mfc := (row).(*Mfc)
 
 		_, err = stmt.Exec(mfc.CompletedTicketsCount, mfc.PendingTicketsCount, mfc.Id)
 		if err != nil {
