@@ -2,13 +2,14 @@ package controller
 
 import (
 	"fmt"
+	"net/http"
+	"reflect"
+	"runtime"
+
 	"github.com/Meromen/mfc-backend/db"
 	"github.com/Meromen/mfc-backend/logger"
 	"github.com/carlescere/scheduler"
 	"github.com/gorilla/mux"
-	"net/http"
-	"reflect"
-	"runtime"
 )
 
 const (
@@ -16,9 +17,9 @@ const (
 )
 
 type response struct {
-	Code   int
-	Status string
-	Body   interface{}
+	Code   int         `json:"code"`
+	Status string      `json:"status"`
+	Body   interface{} `json:"body"`
 }
 
 type controller struct {
@@ -40,7 +41,7 @@ func (c controller) NewRouter() *mux.Router {
 
 	router.HandleFunc(
 		fmt.Sprintf("%s/mfcs", API_URL),
-		headerMiddleware(c.GetMfcs, c.logger)).
+		corsMiddleware(headerMiddleware(c.GetMfcs, c.logger))).
 		Methods("GET")
 
 	router.PathPrefix("/").Handler(http.FileServer(http.Dir("./client/")))
@@ -60,6 +61,14 @@ func headerMiddleware(handler http.HandlerFunc, logger logger.Logger) http.Handl
 		name := runtime.FuncForPC(reflect.ValueOf(handler).Pointer()).Name()
 		logger.Printf("Handler function called: %v", name)
 		w.Header().Set("Content-Type", "application/json")
+		handler(w, r)
+	}
+}
+
+func corsMiddleware(handler http.HandlerFunc) http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+		w.Header().Set("Access-Control-Allow-Origin", "*")
+		w.Header().Set("Access-Control-Allow-Headers", "Content-Type")
 		handler(w, r)
 	}
 }
