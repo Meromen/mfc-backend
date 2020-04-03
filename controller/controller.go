@@ -12,7 +12,7 @@ import (
 )
 
 const (
-	API_URL string = "/dm-image-saver/api"
+	API_URL string = "/api"
 )
 
 type response struct {
@@ -39,7 +39,7 @@ func (c controller) NewRouter() *mux.Router {
 	router := mux.NewRouter()
 
 	router.HandleFunc(
-		fmt.Sprintf("%s/images", API_URL),
+		fmt.Sprintf("%s/mfcs", API_URL),
 		headerMiddleware(c.GetMfcs, c.logger)).
 		Methods("GET")
 

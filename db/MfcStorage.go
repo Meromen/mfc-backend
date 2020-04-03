@@ -2,7 +2,9 @@ package db
 
 import (
 	"database/sql"
+	"encoding/json"
 	sq "github.com/Masterminds/squirrel"
+	"io/ioutil"
 )
 
 const (
@@ -20,9 +22,6 @@ const (
 	`
 	dropTableQuery string = `
 		DROP TABLE IF EXISTS mfc;
-	`
-	copyFromQuery string = `
-		COPY mfc FROM './mfc-list.csv';
 	`
 )
 
@@ -49,7 +48,41 @@ func (s *MfcStorage) initializeTable() error {
 		return err
 	}
 
-	_, err = bdTx.Exec(copyFromQuery)
+	body, err := ioutil.ReadFile("mfc-list.json")
+	if err != nil {
+		bdTx.Rollback()
+		return err
+	}
+
+	mfcs := make([]Mfc, 0)
+	err = json.Unmarshal(body, &mfcs)
+	if err != nil {
+		bdTx.Rollback()
+		return err
+	}
+
+	sqlq, _, err := sq.Insert(s.tableName).
+		Columns("id", "name", "organization_full_name",
+		"organization_address", "lat", "lan").
+		Values("", "", "", "", 0, 0).
+		PlaceholderFormat(sq.Dollar).
+		ToSql()
+
+	stmt, err := bdTx.Prepare(sqlq)
+	if err != nil {
+		bdTx.Rollback()
+		return err
+	}
+
+	for _, mfc := range mfcs {
+		_, err = stmt.Exec(mfc.Id, mfc.Name, mfc.OrganizationFullName, mfc.OrganizationAddress, mfc.Lat, mfc.Lan)
+		if err != nil {
+			bdTx.Rollback()
+			return err
+		}
+	}
+
+	err = stmt.Close()
 	if err != nil {
 		bdTx.Rollback()
 		return err
