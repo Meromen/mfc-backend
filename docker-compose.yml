@@ -1,0 +1,8 @@
+version: '3'
+services:
+  mfc-api:
+    build:
+      context: .
+      dockerfile: Dockerfile-mfc-api
+    env_file:
+      - .env.test
