@@ -1,8 +1,22 @@
 version: '3'
 services:
+  postgres:
+    build:
+      context: postgres
+
   mfc-api:
     build:
       context: .
       dockerfile: Dockerfile-mfc-api
     env_file:
-      - .env.test
+      - cmd/.env
+    depends_on:
+      - postgres
+
+  nginx:
+    build:
+      context: nginx
+    ports:
+      - "443:443"
+    depends_on:
+      - mfc-api

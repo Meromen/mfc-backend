@@ -22,4 +22,4 @@ RUN mkdir -p /cmd/mfc-api
 COPY --from=build /go/src/github.com/Meromen/mfc-backend/cmd/mfc-api/ /cmd/mfc-api/
 CMD cd /cmd/mfc-api && ls -a && rm ./main.go
 
-CMD "/cmd/mfc-api/mfc-api"
+CMD "/wait-postgres.sh"

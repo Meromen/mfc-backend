@@ -13,6 +13,6 @@ type Preferences struct {
 
 func Get() (*Preferences, error) {
 	var p Preferences
-	err := envconfig.Process(".env.test", &p)
+	err := envconfig.Process("", &p)
 	return &p, err
 }
